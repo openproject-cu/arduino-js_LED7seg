@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <title>7segment LED</title>
+    <style type="text/css">
+        html {
+            background: black;
+        }
+        h1 {
+            color: green;
+        }
+        #topLight, #botLight {
+            font-size: 32px;
+            color: gray;
+        }
+        #button {
+            font-size: 64px;
+            width: 80px;
+            height: 80px;
+            text-align: center;
+            color: gray;
+        }
+    </style>
+    <script src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript">
+        var DEV_PORT = "/dev/cu.usbmodemfd121";
+
+        var INPUT = false;
+        var OUTPUT = true;
+
+        var HIGH = 1;
+        var LOW = 0;
+
+        var arduino;
+        
+        //[LEFT_TOP, LEFT_BOTTOM, CENTER_TOP, CENTER_MIDDLE, CENTER_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM, DOT]
+        var POS = [10, 9, 3, 11, 8, 2, 5, 4];
+
+        var NUM = [
+            [HIGH, HIGH, HIGH,  LOW, HIGH, HIGH, HIGH,  LOW],  //zero
+            [ LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH,  LOW],  //one
+            [ LOW, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW],  //two
+            [ LOW,  LOW, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW],  //three
+            [HIGH,  LOW,  LOW, HIGH,  LOW, HIGH, HIGH,  LOW],  //four
+            [HIGH,  LOW, HIGH, HIGH, HIGH,  LOW, HIGH,  LOW],  //five
+            [HIGH, HIGH, HIGH, HIGH, HIGH,  LOW, HIGH,  LOW],  //six
+            [HIGH,  LOW, HIGH,  LOW,  LOW, HIGH, HIGH,  LOW],  //seven
+            [HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW],  //eight
+            [HIGH,  LOW, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW],  //nine
+            [ LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH]]; //dot
+
+        var light = function(k){
+            for(var i=0; i<8; ++i){
+                arduino.pinMode(POS[i], HIGH);
+                arduino.digitalWrite(POS[i], NUM[k][i]);
+            }
+        }
+
+        $(function(){
+            var row = $('#buttons');
+            for(var i=0; i<=9; ++i){
+                row.append('<input id="button" type="button" value="' + i + '" onclick="light(' + i + ')"></input>');
+            }
+
+            row = $('#topLight');
+            for(var i=0; i<3; ++i){
+                row.append('<td id="top' + i + '">●</td>');
+            }
+
+            row = $('#botLight');
+            for(var i=0; i<3; ++i){
+                row.append('<td id="bot' + i + '">●</td>');
+            }
+
+            arduino = document.arduino;
+            arduino.open(DEV_PORT);
+        });
+    </script>
+</head>
+<body>
+    <h1>arduino x 7segment LED</h1>
+    <div align="center">
+        <table id="topLight"></table>
+        <img src="./img/7seg.jpg" width="128" height="228">
+        <table id="botLight"></table><br>
+        <form id="buttons"></form>
+    </div>
+</body>
+</html>
