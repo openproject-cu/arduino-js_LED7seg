@@ -24,6 +24,12 @@
             text-align: center;
             color: gray;
         }
+        #settings {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            color: white;
+        }
     </style>
     <script src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript">
@@ -36,7 +42,7 @@
         var LOW = 0;
 
         var arduino;
-        
+
         //[LEFT_TOP, LEFT_BOTTOM, CENTER_TOP, CENTER_MIDDLE, CENTER_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM, DOT]
         var POS = [10, 9, 3, 11, 8, 2, 5, 4];
 
@@ -60,6 +66,22 @@
             }
         }
 
+        var setup = function(){
+            try{
+                with(document.arduino){
+                    arduino = document.arduino;
+                    arduino.open(DEV_PORT);
+                }
+            }catch(e){
+                alert('Connection failed!');
+            }
+        }
+
+        var changeDevicePort = function(){
+            DEV_PORT = $('#devPort').val();
+            setup();
+        }
+
         $(function(){
             var row = $('#buttons');
             for(var i=0; i<=9; ++i){
@@ -76,18 +98,24 @@
                 row.append('<td id="bot' + i + '">●</td>');
             }
 
-            arduino = document.arduino;
-            arduino.open(DEV_PORT);
+            if(!document.arduino){
+                alert("arduino.js for webpages add-on is not installed.");
+            }else{
+                setup();
+            }
         });
     </script>
 </head>
 <body>
     <h1>arduino x 7segment LED</h1>
-    <div align="center">
-        <table id="topLight"></table>
-        <img src="./img/7seg.jpg" width="128" height="228">
-        <table id="botLight"></table><br>
-        <form id="buttons"></form>
-    </div>
+    <table id="topLight" align="center"></table>
+    <div align="center"><img src="./img/7seg.jpg" width="128" height="228"></div>
+    <table id="botLight" align="center"></table><br>
+    <div align="center"><form id="buttons"></form></div>
+    <form id="settings" action="javascript:void(0)">
+        Device Port:
+        <input type="text" id="devPort">
+        <input type="button" value="Change" onclick="changeDevicePort()">
+    </form>
 </body>
 </html>
